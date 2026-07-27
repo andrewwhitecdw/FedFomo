@@ -21,10 +21,12 @@ parser.add_argument('--seed_torch', default=None, type=int,
 parser.add_argument('--data_seed', default=0, type=int, help="Random seed for initializing data")
 parser.add_argument('--deterministic', default=False, action='store_true', 
                     help="Make PyTorch deterministic")
-parser.add_argument('--cuda', default=True, type=bool,
+parser.add_argument('--cuda', default=True, type=lambda x: x.lower() in ('true', '1', 'yes'),
                     help="Whether to allow using CUDA")
 parser.add_argument('--task', type=str, default=None,
                     help="Local client task: ('classification')")
+parser.add_argument('--num_classes', type=int, default=10,
+                    help="Number of output classes for the model")
 parser.add_argument('--print_logx', default=False, action='store_true',
                     help="Whether to print runx.log.msg() to stdout")
 parser.add_argument('-r', '--replicate', default=None, type=int,
