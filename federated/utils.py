@@ -10,6 +10,7 @@ Utility functions of various function and utility
 """
 import sys
 import os
+import shutil
 import numpy as np
 import torch
 
@@ -117,25 +118,19 @@ def accuracy(output, target, topk=(1,)):
 
 def compute_emd(targets_1, targets_2):
     """Calculates Earth Mover's Distance between two array-like objects (dataset labels)"""
-    total_targets = []
-    total_targets.extend(list(np.unique(targets_1)))
-    total_targets.extend(list(np.unique(targets_2)))
-
-    emd = 0
-
     counts_1 = Counter(targets_1)
     counts_2 = Counter(targets_2)
+
+    emd = 0
 
     size_1 = len(targets_1)
     size_2 = len(targets_2)
 
-    for t in counts_1:
-        count_2 = counts_2[t] if t in counts_2 else 0
-        emd += np.abs((counts_1[t] / size_1) - (count_2 / size_2))
-
-    for t in counts_2:
-        count_1 = counts_1[t] if t in counts_1 else 0
-        emd += np.abs((counts_2[t] / size_2) - (count_1 / size_1))
+    all_targets = set(counts_1.keys()) | set(counts_2.keys())
+    for t in all_targets:
+        p_1 = counts_1.get(t, 0) / size_1
+        p_2 = counts_2.get(t, 0) / size_2
+        emd += np.abs(p_1 - p_2)
 
     return emd
 
