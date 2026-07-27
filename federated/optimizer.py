@@ -33,9 +33,9 @@ def get_local_optimizer(args, net):
     else:
         raise ValueError('Not a valid optimizer')
 
-    if args.learning_rate_decay > 0:
-        # Can implement more complicated LR scheduler here with net.parameters() if desired
-        scheduler = None
+    if 0 < args.learning_rate_decay < 1:
+        scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1,
+                                              gamma=args.learning_rate_decay)
     else:
         scheduler = None
     return optimizer, scheduler
