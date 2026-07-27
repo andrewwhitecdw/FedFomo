@@ -297,7 +297,7 @@ class Client(object):
         """
         self.model = init_federated_model(federated_model_state,
                                           criterion=self.criterion,
-                                          device=None)
+                                          device=self.device)
         if args.enable_dp:
             self.model = convert_batchnorm_modules(self.model)
 
@@ -333,7 +333,8 @@ class Client(object):
                     client_weights = [self.client_weights[c_id] for c_id in possible_ids]
                 else:
                     possible_clients = [c for c in self.population.clients if c.id != self.id]
-                    client_weights = self.client_weights
+                    possible_ids = [c.id for c in possible_clients]
+                    client_weights = [self.client_weights[c_id] for c_id in possible_ids]
 
                 # argsort but with random tie-breaking
                 random_vals = np.random.random(len(client_weights))
@@ -562,7 +563,10 @@ class Client(object):
             self.metrics['val_loss'].append(outputs[0])
 
             if args.enable_dp:
-                stats.update(stats.StatType.TEST, acc1=outputs[1])
+                if args.dataset == 'imagenet':
+                    stats.update(stats.StatType.TEST, acc1=acc1)
+                else:
+                    stats.update(stats.StatType.TEST, acc1=outputs[1])
 
             if args.dataset == 'imagenet':
                 self.metrics['val_acc'].append(acc1)
