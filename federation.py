@@ -143,9 +143,7 @@ def average_model_params_momentum(clients, last_momentum_weights,
 
     model_params = copy.deepcopy(last_model)
     for k in model_params.keys():
-        for i in range(0, len(models)):
-            # Actual momentum update
-            model_params[k] -= momentum_weights[k]
+        model_params[k] -= momentum_weights[k]
     return model_params, momentum_weights
 
 
@@ -350,10 +348,9 @@ class Federation():
                                                             criterion=client.criterion,
                                                             device=client.device)
                 else:
-                    model_clients = [client.last_model, fed_client.model]
                     weight_delta = self.model_weight_delta
-                    model_params = self.average_model_params(models=[client.last_model,
-                                                                     fed_client.model],
+                    model_params = self.average_model_params(fed_models=[client.last_model,
+                                                                         fed_client.model],
                                                              weight_delta=weight_delta)
                     comparison_model = init_federated_model(model_params, 
                                                             criterion=client.criterion, 
