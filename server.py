@@ -46,10 +46,11 @@ class GlobalServer():
     - num_federations (int): Number of total sub-federations to setup
     - args (argparse): Experiment arguments
     """
-    def __init__(self, population, num_federations=None, args=args):
+    def __init__(self, population, num_federations=None, args=args, cfg=None):
         self.device = torch.device('cuda:0')
 
         self.args = args
+        self.cfg = cfg
         self.population = population
         self.num_federations = (num_federations if num_federations is not None 
                                 else population.num_distributions)
@@ -156,7 +157,7 @@ class GlobalServer():
             federation.federate(last_global_model=self.global_model)
         return selected_clients
 
-    def local_train(self, selected_clients, start_epoch, num_epochs=None):
+    def local_train(self, selected_clients, start_epoch, num_epochs=args.federation_epoch):
         """
         Locally train the selected clients
         Returns:
@@ -186,7 +187,7 @@ class GlobalServer():
                 if args.federation_method == 'fomo':
                     if e == 0:
                         client.save_last_model()
-                    elif e == args.federation_epoch - 2:
+                    elif e == num_epochs - 2:
                         client.save_last_model()
 
             for ix in range(len(train_stdout)):
@@ -196,7 +197,7 @@ class GlobalServer():
                     print(train_stdout[ix])
                 print_header(eval_stdout[ix], style='bottom')
         print_header(args.experiment_name)
-        return start_epoch + args.federation_epoch
+        return start_epoch + num_epochs
 
     def local_eval(self, selected_clients, epoch):
         """
@@ -384,7 +385,7 @@ class GlobalServer():
             if np.min(matrix) < 0:
                 matrix = matrix + (0 - np.min(matrix))
         if normalize:
-            matrix = matrix / (np.max(matrix) - np.min(matrix))
+            matrix = (matrix - np.min(matrix)) / (np.max(matrix) - np.min(matrix))
         return matrix
 
     def update_eval_metrics(self, accuracy, loss, epoch,
