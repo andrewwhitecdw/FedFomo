@@ -350,6 +350,11 @@ def compute_loss_delta_by_class(dataset, baseline_net, comparison_net, epoch, cr
     reduced_loss_delta = total_reduced_loss_b - total_reduced_loss_c
 
     text = f'Epoch {epoch} | Baseline acc: {total_correct_b / total_eval:<.4f} | Comparison acc: {total_correct_c / total_eval:<.4f} | Class loss delta: {loss_delta:<.4f} | Baseline loss: {total_reduced_loss_b:<.4f} | Comparison loss: {total_reduced_loss_c:<.4f} | Fraction: {(total_positives / total_eval):<.4f} | Batch eval time: {(end_time - start_time) / len(dataloader):<.4f}'
+    if original_reduce is not None:
+        criterion.reduce = original_reduce
+    if original_reduction is not None:
+        criterion.reduction = original_reduction
+
     if return_stdout:
         return loss_delta, reduced_loss_delta, text
     else:
